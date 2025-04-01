@@ -1,6 +1,6 @@
 from langchain_core.tools import Tool
 from langchain_ollama import ChatOllama  # type: ignore
-from langgraph_agentflow.single_step import create_hierarchical_agent
+from langgraph_agentflow.single_step import create_hierarchical_agent, stream_agent_responses
 
 # Initialize LLM
 llm = ChatOllama(model="llama3", temperature=0.7)
@@ -54,21 +54,17 @@ agent_config = [
 ]
 
 # Use the agent
-graph, config, output_stream, loop = create_hierarchical_agent(llm, agent_config)
+graph, config = create_hierarchical_agent(llm, agent_config)
 
 # Example usage
 if __name__ == "__main__":
     # Option 1: Stream a single response
-    print("Streaming a single response:")
-    for step in loop():
+    print("Getting a complete response:")
+    query = "What's the recent performance of Apple stock and how does it relate to tech sector news?"
+    for step in stream_agent_responses(graph, query, config):
         print("-" * 50)
         message = step["messages"][-1]
         message.pretty_print()
         print("-" * 50)
     
     print("\n\nStarting interactive loop (press Ctrl+C to exit):")
-    # Option 2: Run an interactive loop
-    try:
-        loop()
-    except KeyboardInterrupt:
-        print("\nExited by user.")

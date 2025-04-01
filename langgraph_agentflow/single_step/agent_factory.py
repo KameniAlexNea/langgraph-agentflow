@@ -107,7 +107,7 @@ def build_agent_graph(
     llm: BaseChatModel,
     agent_configs: List[Dict[str, Any]],
     router_prompt: str = DEFAULT_ROUTER_PROMPT,
-) -> tuple:
+):
     """
     Build a complete agent graph with router and specialized agents.
 
@@ -235,30 +235,6 @@ def stream_agent_responses(
         logger.error(f"\nAn error occurred during graph execution: {e}")
 
 
-def run_interactive_loop(graph: CompiledStateGraph, config: Dict = None):
-    """Run an interactive chat loop with the agent graph."""
-    if config is None:
-        config = {"configurable": {"thread_id": "user-thread-1"}}
-
-    logger.info("Starting hierarchical chatbot. Type 'quit', 'exit', or 'q' to stop.")
-    while True:
-        try:
-            user_input = input("User: ")
-            if user_input.lower() in ["quit", "exit", "q"]:
-                logger.info("Goodbye!")
-                break
-            else:
-                yield from stream_agent_responses(graph, user_input, config)
-        except KeyboardInterrupt:
-            logger.info("\nInterrupted by user. Goodbye!")
-            break
-        except Exception as e:
-            logger.error(f"An unexpected error occurred in the input loop: {e}")
-            break
-
-    logger.info("Exiting the chatbot.")
-
-
 def create_hierarchical_agent(
     llm: BaseChatModel,
     agent_configs: Optional[List[Dict[str, Any]]] = None,
@@ -300,7 +276,5 @@ def create_hierarchical_agent(
     # Return all the components needed for interaction
     return (
         graph,
-        config,
-        lambda user_input: stream_agent_responses(graph, user_input, config),
-        lambda: run_interactive_loop(graph, config),
+        config
     )
