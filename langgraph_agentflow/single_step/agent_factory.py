@@ -105,7 +105,7 @@ def create_specialized_agent(
 
 def build_agent_graph(
     llm: BaseChatModel,
-    agent_configs: Dict[str, Dict[str, Any]],
+    agent_configs: List[Dict[str, Any]],
     router_prompt: str = DEFAULT_ROUTER_PROMPT,
 ) -> tuple:
     """
@@ -113,8 +113,8 @@ def build_agent_graph(
 
     Args:
         llm: Base language model
-        agent_configs: Dictionary mapping agent names to their configurations
-                       (each containing 'description' and optional 'tools')
+        agent_configs: List of agent configuration dictionaries. Each must contain 'name' and 'description',
+                      and may optionally contain 'tools'.
         router_prompt: Custom router prompt template
 
     Returns:
@@ -122,8 +122,8 @@ def build_agent_graph(
     """
     # Extract agent descriptions for the router
     agent_descriptions = {
-        name: config.get("description", f"Handles {name}-related queries")
-        for name, config in agent_configs.items()
+        config["name"]: config.get("description", f"Handles {config['name']}-related queries")
+        for config in agent_configs
     }
 
     # Create the router agent
@@ -133,7 +133,8 @@ def build_agent_graph(
     specialized_agents = {}
     tool_nodes = {}
 
-    for name, config in agent_configs.items():
+    for config in agent_configs:
+        name = config["name"]
         tools = config.get("tools", [])
         specialized_agents[name] = create_specialized_agent(name, llm, tools)
         if tools:
@@ -160,16 +161,17 @@ def build_agent_graph(
     def decide_next_node(state: MessagesState):
         route = state["route"]
         if route is not None:
-            for name in agent_configs.keys():
+            for config in agent_configs:
+                name = config["name"]
                 if name in route:
                     return f"{name}_agent"
             # Default to the first agent if no match
-            return f"{list(agent_configs.keys())[0]}_agent"
+            return f"{agent_configs[0]['name']}_agent"
         return END
 
     # Add conditional edges from router to agents
     conditional_targets = {
-        f"{name}_agent": f"{name}_agent" for name in agent_configs.keys()
+        f"{config['name']}_agent": f"{config['name']}_agent" for config in agent_configs
     }
     conditional_targets[END] = END
     workflow.add_conditional_edges("router", decide_next_node, conditional_targets)
@@ -187,7 +189,8 @@ def build_agent_graph(
         return END
 
     # Connect agents to their tools
-    for name in agent_configs.keys():
+    for config in agent_configs:
+        name = config["name"]
         if f"{name}_tools" in tool_nodes:
             workflow.add_conditional_edges(
                 f"{name}_agent", route_tools, {"call_tools": f"{name}_tools", END: END}
@@ -258,7 +261,7 @@ def run_interactive_loop(graph: CompiledStateGraph, config: Dict = None):
 
 def create_hierarchical_agent(
     llm: BaseChatModel,
-    agent_configs: Optional[Dict[str, Dict[str, Any]]] = None,
+    agent_configs: Optional[List[Dict[str, Any]]] = None,
     router_prompt: str = DEFAULT_ROUTER_PROMPT,
     visualize: bool = True,
 ):
@@ -267,7 +270,7 @@ def create_hierarchical_agent(
 
     Args:
         llm: Language model to use (will create default if None)
-        agent_configs: Configuration for each specialized agent
+        agent_configs: List of configuration dictionaries for each specialized agent
         router_prompt: Custom router prompt
         visualize: Whether to visualize the graph
 
@@ -276,12 +279,13 @@ def create_hierarchical_agent(
     """
     # Create default agent configs if not provided
     if agent_configs is None:
-        agent_configs = {
-            "general": {
+        agent_configs = [
+            {
+                "name": "general",
                 "description": "Handles general conversation and queries not fitting other categories.",
                 "tools": [],
             }
-        }
+        ]
 
     # Build the graph
     graph, memory = build_agent_graph(llm, agent_configs, router_prompt)

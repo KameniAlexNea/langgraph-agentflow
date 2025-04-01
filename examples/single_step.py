@@ -10,27 +10,27 @@ sector_tools = [...]
 ticker_tools = [...]
 
 # Create the multi-step agent
-agent = {
-    "news": {
+agent = [
+    {
         "name": "news",
         "tools": news_tools,
         "description": "Retrieves and analyzes news about companies and markets",
     },
-    "sector": {
+    {
         "name": "sector",
         "tools": sector_tools,
         "description": "Analyzes sector performance and trends",
     },
-    "ticker": {
+    {
         "name": "ticker",
         "tools": ticker_tools,
         "description": "Retrieves and analyzes stock ticker information",
     },
-    "general": {
+    {
         "name": "general",
         "description": "Handles general information and queries not specific to other domains",
     },
-}
+]
 
 # Use the agent
 graph, config, output_stream, loop = create_hierarchical_agent(llm, agent)
