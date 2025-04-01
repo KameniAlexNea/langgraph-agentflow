@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+packages = [i.strip() for i in open("requirements.txt").readlines()]
 
 setup(
     name="langgraph-agentflow",
@@ -8,11 +9,7 @@ setup(
     author_email="Kamenialexnea@gmail.com",
     packages=find_packages(include=["langgraph_agentflow", "langgraph_agentflow.*"]),
     package_data={"langgraph_agentflow": ["py.typed"]},
-    install_requires=[
-        "langgraph",
-        "langchain-core",
-        "loguru",
-    ],
+    install_requires=packages,
     extras_require={
         "dev": [
             "pytest>=7.0.0",

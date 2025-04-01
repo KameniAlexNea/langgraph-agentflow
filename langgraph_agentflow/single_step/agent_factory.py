@@ -248,7 +248,7 @@ def run_interactive_loop(graph: CompiledStateGraph, config: Dict = None):
                 logger.info("Goodbye!")
                 break
             else:
-                stream_agent_responses(graph, user_input, config)
+                yield from stream_agent_responses(graph, user_input, config)
         except KeyboardInterrupt:
             logger.info("\nInterrupted by user. Goodbye!")
             break

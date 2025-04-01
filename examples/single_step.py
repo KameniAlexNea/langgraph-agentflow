@@ -60,9 +60,11 @@ graph, config, output_stream, loop = create_hierarchical_agent(llm, agent_config
 if __name__ == "__main__":
     # Option 1: Stream a single response
     print("Streaming a single response:")
-    output_stream(
-        "What's the recent performance of Apple stock and how does it relate to tech sector news?"
-    )
+    for step in loop():
+        print("-" * 50)
+        message = step["messages"][-1]
+        message.pretty_print()
+        print("-" * 50)
     
     print("\n\nStarting interactive loop (press Ctrl+C to exit):")
     # Option 2: Run an interactive loop

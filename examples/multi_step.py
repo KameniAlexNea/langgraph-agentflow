@@ -79,5 +79,6 @@ if __name__ == "__main__":
     for step in stream_multi_step_agent(agent, query):
         # This will print out intermediate steps and reasoning
         print("-" * 50)
-        print(step)
+        message = step["messages"][-1]
+        message.pretty_print()
         print("-" * 50)
