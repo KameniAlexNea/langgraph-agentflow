@@ -2,7 +2,7 @@ from langchain_ollama import ChatOllama  # type: ignore
 from langgraph_agentflow.single_step import create_hierarchical_agent
 
 # Initialize LLM
-llm = ChatOllama(model="llama3", temperature=0.7)
+llm = ChatOllama(model="llama3.3", temperature=0.7)
 
 # Define your tools and agent capabilities
 news_tools = [...]
