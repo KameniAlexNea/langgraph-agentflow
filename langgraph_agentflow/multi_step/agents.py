@@ -11,7 +11,7 @@ from langgraph_agentflow.multi_step.prompts import (
     DEFAULT_SYNTHESIS_PROMPT,
 )
 from langgraph_agentflow.multi_step.state import MultiStepAgentState
-
+from loguru import logger
 
 def create_plan_request_function(
     llm: BaseChatModel, 
@@ -21,7 +21,7 @@ def create_plan_request_function(
     """Creates a planning function that decides whether to route directly or create a multi-step plan."""
     
     def plan_request(state: MultiStepAgentState):
-        print("--- Calling Planner Agent ---")
+        logger.info("--- Calling Planner Agent ---")
         query = state["messages"][-1].content
         
         # Format agent descriptions for prompt
@@ -35,7 +35,7 @@ def create_plan_request_function(
         )
         
         response = llm.invoke([HumanMessage(content=prompt)])
-        print(f"Planner Output:\n{response.content}")
+        logger.info(f"Planner Output:\n{response.content}")
 
         if response.content.startswith("SIMPLE:"):
             route = response.content.split(":", 1)[1].strip().lower()
@@ -56,7 +56,7 @@ def create_plan_request_function(
             }
         else:
             # Fallback if planner output is malformed
-            print("Planner failed to provide valid output, routing to general.")
+            logger.error("Planner failed to provide valid output, routing to general.")
             return {"route": "general", "plan": None, "original_query": query}
             
     return plan_request
@@ -70,16 +70,16 @@ def create_execute_step_function(
     """Creates a function that executes a single step in the plan."""
     
     def execute_step(state: MultiStepAgentState):
-        print("--- Calling Executor Agent ---")
+        logger.info("--- Calling Executor Agent ---")
         plan = state["plan"]
         step_index = state["current_step_index"]
 
         if plan is None or step_index >= len(plan):
-            print("Error: Execute step called with no plan or index out of bounds.")
+            logger.warning("Error: Execute step called with no plan or index out of bounds.")
             return {"route": "general"}
 
         current_step_description = plan[step_index]
-        print(f"Executing Step {step_index + 1}: {current_step_description}")
+        logger.info(f"Executing Step {step_index + 1}: {current_step_description}")
 
         # Format agent descriptions for prompt
         agent_desc_text = "\n".join(
@@ -93,7 +93,7 @@ def create_execute_step_function(
         
         response = llm.invoke([HumanMessage(content=prompt)])
         route = response.content.strip().lower()
-        print(f"Executor Routing Decision: {route} for step '{current_step_description}'")
+        logger.info(f"Executor Routing Decision: {route} for step '{current_step_description}'")
 
         step_message = HumanMessage(
             content=f"Focus on this task: {current_step_description}"
@@ -114,7 +114,7 @@ def create_process_step_result_function(
     """Creates a function that processes the result of a step and decides next actions."""
     
     def process_step_result(state: MultiStepAgentState):
-        print("--- Processing Step Result ---")
+        logger.info("--- Processing Step Result ---")
         last_message = state["messages"][-1]
         step_index = state["current_step_index"]
         plan = state["plan"]
@@ -126,14 +126,14 @@ def create_process_step_result_function(
         next_step_index = step_index + 1
 
         if next_step_index < len(plan):
-            print(f"Finished step {step_index + 1}. Moving to step {next_step_index + 1}.")
+            logger.info(f"Finished step {step_index + 1}. Moving to step {next_step_index + 1}.")
             return {
                 "executed_steps": executed_steps,
                 "current_step_index": next_step_index,
                 "route": None,
             }
         else:
-            print("Plan finished. Synthesizing final answer.")
+            logger.info("Plan finished. Synthesizing final answer.")
             summary_str = "\n".join(executed_steps)
             synthesis_prompt_filled = synthesis_prompt.format(
                 original_query=state["original_query"], 
@@ -141,7 +141,7 @@ def create_process_step_result_function(
             )
             
             final_response = llm.invoke([HumanMessage(content=synthesis_prompt_filled)])
-            print("--- Final Synthesized Response ---")
+            logger.info("--- Final Synthesized Response ---")
             return {
                 "executed_steps": executed_steps,
                 "messages": [final_response],
@@ -176,9 +176,9 @@ def create_route_request_function(
             ),
         ]
         
-        print("--- Calling Router Agent ---")
+        logger.info("--- Calling Router Agent ---")
         response = llm.invoke(router_messages)
-        print(f"Router Decision: {response.content}")
+        logger.info(f"Router Decision: {response.content}")
         
         return {
             "messages": [],
@@ -196,7 +196,7 @@ def create_agent_function(llm: BaseChatModel, tools: Optional[List[BaseTool]] = 
     
     def call_agent(state: MultiStepAgentState):
         messages = state["messages"]
-        print(f"--- Calling {name.capitalize()} Agent ---")
+        logger.info(f"--- Calling {name.capitalize()} Agent ---")
         response = agent_llm.invoke(messages)
         return {"messages": [response]}
         

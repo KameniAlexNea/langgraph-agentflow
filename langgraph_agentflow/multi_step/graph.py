@@ -4,6 +4,7 @@ from langchain_core.tools import BaseTool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode
+from loguru import logger
 
 from langgraph_agentflow.multi_step.state import MultiStepAgentState
 
@@ -17,23 +18,23 @@ def create_decision_functions():
         elif state.get("route"):
             return "route_simple"
         else:
-            print("Error: Planner did not produce plan or simple route.")
+            logger.error("Error: Planner did not produce plan or simple route.")
             return END
 
     def route_to_specialist(state: MultiStepAgentState):
         route = state.get("route")
         if route:
             return route.strip().lower()
-        print("Error: No route found after executor.")
+        logger.error("Error: No route found after executor.")
         return END
 
     def route_tools(state: MultiStepAgentState) -> str:
         messages = state["messages"]
         last_message = messages[-1]
         if hasattr(last_message, "tool_calls") and len(last_message.tool_calls) > 0:
-            print(f"--- Routing to Tools: {last_message.tool_calls[0]['name']} ---")
+            logger.info(f"--- Routing to Tools: {last_message.tool_calls[0]['name']} ---")
             return "call_tools"
-        print("--- No Tool Call Detected by Agent ---")
+        logger.warning("--- No Tool Call Detected by Agent ---")
         return END
 
     def decide_continue_or_synthesize(state: MultiStepAgentState):
