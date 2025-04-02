@@ -1,0 +1,4 @@
+langgraph>=0.0.15
+langchain-core>=0.1.0
+loguru>=0.7.0
+typing-extensions>=4.5.0
