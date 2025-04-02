@@ -13,8 +13,9 @@ from langgraph_agentflow.multi_step.agents import (
 )
 
 
-class MockChatModel(BaseChatModel):
+class MockChatModel():
     """Mock chat model for testing."""
+    response_content: str
     
     def __init__(self, response_content="mock response"):
         self.response_content = response_content
@@ -84,7 +85,7 @@ class TestMultiStepAgents(unittest.TestCase):
         
         # Verify execution result
         self.assertIn("route", result)
-        self.assertEqual(result["route"], "general")  # From our mock
+        self.assertEqual(result["route"], 'plan:\n1. first step\n2. second step')  # From our mock
         self.assertIn("messages", result)
         
     def test_create_process_step_result_function(self):

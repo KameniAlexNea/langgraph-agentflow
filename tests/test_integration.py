@@ -95,7 +95,7 @@ class TestIntegration(unittest.TestCase):
         mock_build_graph.assert_called_once()
     
     @patch("langgraph_agentflow.multi_step.graph.StateGraph")
-    @patch("langgraph_agentflow.multi_step.invoke_multi_step_agent")
+    @patch("tests.test_integration.invoke_multi_step_agent")
     def test_multi_step_agent_invocation(self, mock_invoke, mock_state_graph):
         """Test invoking a multi-step agent."""
         # Mock the invoke function

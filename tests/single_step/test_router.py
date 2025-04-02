@@ -13,6 +13,10 @@ class MockChatModel(BaseChatModel):
     def _generate(self, messages, stop=None, run_id=None, **kwargs):
         # Always return "general" as the routing decision
         return AIMessage(content="general")
+
+    def invoke(self, messages, stop=None, run_id=None, **kwargs):
+        # Always return "general" as the routing decision
+        return AIMessage(content="general")
     
     def _llm_type(self):
         return "mock_chat_model"
