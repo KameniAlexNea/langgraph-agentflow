@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from langgraph_agentflow.single_step import create_hierarchical_agent
 
@@ -9,7 +9,7 @@ class TestSingleStepAgent(unittest.TestCase):
         # Create a mock LLM
         self.mock_llm = MagicMock()
         self.mock_llm.invoke.return_value = MagicMock(content="general")
-        
+
         # Define test agent configs
         self.agent_configs = [
             {
@@ -24,7 +24,7 @@ class TestSingleStepAgent(unittest.TestCase):
         graph, config, stream_fn, loop_fn = create_hierarchical_agent(
             self.mock_llm, self.agent_configs, visualize=False
         )
-        
+
         # Test that the functions and graph are created correctly
         self.assertIsNotNone(graph)
         self.assertTrue(callable(stream_fn))

@@ -1,6 +1,7 @@
 from langgraph.graph.state import CompiledStateGraph
 from loguru import logger
 
+
 def visualize_graph(graph: CompiledStateGraph):
     """Try to visualize the graph if possible."""
     try:

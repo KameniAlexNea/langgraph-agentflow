@@ -1,10 +1,12 @@
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph.state import CompiledStateGraph
 
 from .agent_types import DEFAULT_ROUTER_PROMPT
 from .graph_builder import build_agent_graph
 from .visualization import visualize_graph
+
 
 def create_hierarchical_agent(
     llm: BaseChatModel,
@@ -45,7 +47,4 @@ def create_hierarchical_agent(
     config = {"configurable": {"thread_id": "user-thread-1"}}
 
     # Return all the components needed for interaction
-    return (
-        graph,
-        config
-    )
+    return (graph, config)

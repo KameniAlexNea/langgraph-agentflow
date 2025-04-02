@@ -1,8 +1,10 @@
-from typing import List, Callable
+from typing import Callable, List
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from loguru import logger
 
 from .agent_types import MessagesState
+
 
 def create_specialized_agent(
     name: str,

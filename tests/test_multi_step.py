@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from langgraph_agentflow.multi_step import create_multi_step_agent
 
@@ -9,7 +9,7 @@ class TestMultiStepAgent(unittest.TestCase):
         # Create a mock LLM
         self.mock_llm = MagicMock()
         self.mock_llm.invoke.return_value = MagicMock(content="SIMPLE: general")
-        
+
         # Define test agent configs
         self.agent_tools = [
             {
@@ -21,7 +21,7 @@ class TestMultiStepAgent(unittest.TestCase):
 
     def test_create_multi_step_agent(self):
         graph = create_multi_step_agent(self.mock_llm, self.agent_tools)
-        
+
         # Test that the graph is created correctly
         self.assertIsNotNone(graph)
 

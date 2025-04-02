@@ -1,14 +1,16 @@
-from typing import Dict, List, Any, Tuple
-from loguru import logger
+from typing import Any, Dict, List, Tuple
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode
+from loguru import logger
 
-from .agent_types import MessagesState, DEFAULT_ROUTER_PROMPT
+from .agent_types import DEFAULT_ROUTER_PROMPT, MessagesState
 from .router import create_router_agent
 from .specialized_agent import create_specialized_agent
+
 
 def build_agent_graph(
     llm: BaseChatModel,
@@ -29,7 +31,9 @@ def build_agent_graph(
     """
     # Extract agent descriptions for the router
     agent_descriptions = {
-        config["name"]: config.get("description", f"Handles {config['name']}-related queries")
+        config["name"]: config.get(
+            "description", f"Handles {config['name']}-related queries"
+        )
         for config in agent_configs
     }
 
