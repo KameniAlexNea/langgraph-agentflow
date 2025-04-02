@@ -7,7 +7,10 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode
 from loguru import logger
 
-from langgraph_agentflow.single_step.agent_types import DEFAULT_ROUTER_PROMPT, MessagesState
+from langgraph_agentflow.single_step.agent_types import (
+    DEFAULT_ROUTER_PROMPT,
+    MessagesState,
+)
 from langgraph_agentflow.single_step.router import create_router_agent
 from langgraph_agentflow.single_step.specialized_agent import create_specialized_agent
 
