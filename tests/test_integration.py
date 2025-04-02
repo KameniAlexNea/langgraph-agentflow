@@ -88,23 +88,22 @@ class TestIntegration(unittest.TestCase):
         mock_build_graph.assert_called_once()
 
     @patch("langgraph_agentflow.multi_step.graph.StateGraph")
-    @patch("tests.test_integration.invoke_multi_step_agent")
+    @patch("langgraph_agentflow.multi_step.invoke_multi_step_agent")
     def test_multi_step_agent_invocation(self, mock_invoke, mock_state_graph):
         """Test invoking a multi-step agent."""
-        # Mock the invoke function
+        # Mock response
         mock_response = {"messages": [AIMessage(content="Final response")]}
         mock_invoke.return_value = mock_response
 
-        # Create a mock graph
         mock_graph = MagicMock()
+        mock_graph.invoke.side_effect = mock_invoke # lambda *args, **kwargs: print("Mocked invoke call")
         mock_state_graph.return_value.compile.return_value = mock_graph
 
-        # Create and invoke the agent
         agent = create_multi_step_agent(llm=self.llm, agent_tools=self.agent_configs)
 
-        # Test the invoke function
         result = invoke_multi_step_agent(agent, "Test query")
 
-        # Verify the result
+        print("mock_invoke call count:", mock_invoke.call_count)
+        
         self.assertEqual(result, mock_response)
         mock_invoke.assert_called_once()
