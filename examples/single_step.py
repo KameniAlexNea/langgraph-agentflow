@@ -2,8 +2,8 @@ from langchain_core.tools import Tool
 from langchain_ollama import ChatOllama  # type: ignore
 
 from langgraph_agentflow.single_step import (
-    create_hierarchical_agent,
     stream_agent_responses,
+    build_agent_graph
 )
 
 # Initialize LLM
@@ -58,7 +58,8 @@ agent_config = [
 ]
 
 # Use the agent
-graph, config = create_hierarchical_agent(llm, agent_config)
+graph, _ = build_agent_graph(llm, agent_config)
+config = {"configurable": {"thread_id": "user-thread-1"}}
 
 # Example usage
 if __name__ == "__main__":
