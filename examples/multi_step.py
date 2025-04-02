@@ -1,6 +1,10 @@
 from langchain_core.tools import Tool
 from langchain_ollama import ChatOllama  # type: ignore
-from langgraph_agentflow.multi_step import create_multi_step_agent, invoke_multi_step_agent, stream_multi_step_agent
+
+from langgraph_agentflow.multi_step import (
+    create_multi_step_agent,
+    stream_multi_step_agent,
+)
 
 # Initialize LLM
 llm = ChatOllama(model="llama3", temperature=0.7)
@@ -37,22 +41,22 @@ agent = create_multi_step_agent(
         {
             "name": "news",
             "tools": news_tools,
-            "description": "Retrieves and analyzes news about companies and markets"
+            "description": "Retrieves and analyzes news about companies and markets",
         },
         {
             "name": "sector",
             "tools": sector_tools,
-            "description": "Analyzes sector performance and trends"
+            "description": "Analyzes sector performance and trends",
         },
         {
             "name": "ticker",
             "tools": ticker_tools,
-            "description": "Retrieves and analyzes stock ticker information"
+            "description": "Retrieves and analyzes stock ticker information",
         },
         {
             "name": "general",
-            "description": "Handles general information and queries not specific to other domains"
-        }
+            "description": "Handles general information and queries not specific to other domains",
+        },
     ],
     custom_prompts={
         # Optional: override default prompts
@@ -63,7 +67,7 @@ User Query: {query}
 If it's a simple query, respond with: SIMPLE: [agent_name]
 If it requires multiple steps, respond with: PLAN: followed by numbered steps.
 """
-    }
+    },
 )
 
 # Use the agent
@@ -71,9 +75,7 @@ if __name__ == "__main__":
     # Option 1: Get a complete response
     print("Getting a complete response:")
     query = "What's the recent performance of Apple stock and how does it relate to tech sector news?"
-    response = invoke_multi_step_agent(agent, query)
-    print("Final response:", response)
-    
+
     print("\n\nStreaming the step-by-step execution:")
     # Option 2: Stream the steps
     for step in stream_multi_step_agent(agent, query):

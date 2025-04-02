@@ -1,6 +1,10 @@
 from langchain_core.tools import Tool
 from langchain_ollama import ChatOllama  # type: ignore
-from langgraph_agentflow.single_step import create_hierarchical_agent, stream_agent_responses
+
+from langgraph_agentflow.single_step import (
+    create_hierarchical_agent,
+    stream_agent_responses,
+)
 
 # Initialize LLM
 llm = ChatOllama(model="llama3", temperature=0.7)
@@ -66,5 +70,5 @@ if __name__ == "__main__":
         message = step["messages"][-1]
         message.pretty_print()
         print("-" * 50)
-    
+
     print("\n\nStarting interactive loop (press Ctrl+C to exit):")

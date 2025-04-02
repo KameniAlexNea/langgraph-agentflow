@@ -37,7 +37,7 @@ def create_hierarchical_agent(
         ]
 
     # Build the graph
-    graph, memory = build_agent_graph(llm, agent_configs, router_prompt)
+    graph, _ = build_agent_graph(llm, agent_configs, router_prompt)
 
     # Visualize if requested
     if visualize:
