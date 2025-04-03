@@ -1,5 +1,18 @@
-from langchain_core.tools import Tool
+"""
+Multi-step agent example using LangGraph and Ollama
+This example demonstrates how to create a multi-step agent using the LangGraph framework and the Ollama LLM. The agent is designed to handle queries related to news, sector performance, and ticker information.
+It showcases how to build the agent graph, configure it, and interact with it to get responses.
+
+pip install git+ssh://git@github.com/Nganga-AI/tumkwe-invest.git
+"""
+
 from langchain_ollama import ChatOllama  # type: ignore
+from tumkwe_invest.news import TOOL_DESCRIPTION as NEWS_TOOL_DESCRIPTION
+from tumkwe_invest.news import tools as news_tools
+from tumkwe_invest.sector import TOOL_DESCRIPTION as SECTOR_TOOL_DESCRIPTION
+from tumkwe_invest.sector import tools as sector_tools
+from tumkwe_invest.ticker import TOOL_DESCRIPTION as TICKER_TOOL_DESCRIPTION
+from tumkwe_invest.ticker import tools as ticker_tools
 
 from langgraph_agentflow.multi_step import (
     create_multi_step_agent,
@@ -9,31 +22,6 @@ from langgraph_agentflow.multi_step import (
 # Initialize LLM
 llm = ChatOllama(model="llama3.3", temperature=0.7)
 
-# Define your tools (simple examples)
-news_tools = [
-    Tool(
-        name="search_news",
-        description="Search for recent news about a company or topic",
-        func=lambda x: f"News results for {x}: Latest financial news...",
-    )
-]
-
-sector_tools = [
-    Tool(
-        name="sector_analysis",
-        description="Get analysis for a market sector",
-        func=lambda x: f"Sector analysis for {x}: The sector is performing well...",
-    )
-]
-
-ticker_tools = [
-    Tool(
-        name="get_stock_price",
-        description="Get the current stock price for a ticker symbol",
-        func=lambda x: f"Stock price for {x}: $150.42, up 1.2% today",
-    )
-]
-
 # Create the multi-step agent
 agent = create_multi_step_agent(
     llm=llm,
@@ -41,33 +29,23 @@ agent = create_multi_step_agent(
         {
             "name": "news",
             "tools": news_tools,
-            "description": "Retrieves and analyzes news about companies and markets",
+            "description": NEWS_TOOL_DESCRIPTION,
         },
         {
             "name": "sector",
             "tools": sector_tools,
-            "description": "Analyzes sector performance and trends",
+            "description": SECTOR_TOOL_DESCRIPTION,
         },
         {
             "name": "ticker",
             "tools": ticker_tools,
-            "description": "Retrieves and analyzes stock ticker information",
+            "description": TICKER_TOOL_DESCRIPTION,
         },
         {
             "name": "general",
             "description": "Handles general information and queries not specific to other domains",
         },
     ],
-    custom_prompts={
-        # Optional: override default prompts
-        "planner": """You are an expert planner specialized in financial analysis tasks.
-Your task is to analyze the user's query and determine if it requires multiple steps.
-Available agents: {agent_descriptions}
-User Query: {query}
-If it's a simple query, respond with: SIMPLE: [agent_name]
-If it requires multiple steps, respond with: PLAN: followed by numbered steps.
-"""
-    },
 )
 
 # Use the agent

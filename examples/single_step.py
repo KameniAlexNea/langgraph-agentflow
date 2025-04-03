@@ -1,52 +1,40 @@
-from langchain_core.tools import Tool
+"""
+Single step agent example using LangGraph and Ollama LLM
+This example demonstrates how to create a single-step agent using the LangGraph framework and the Ollama LLM. The agent is designed to handle queries related to news, sector performance, and ticker information.
+It showcases how to build the agent graph, configure it, and interact with it to get responses.
+
+pip install git+ssh://git@github.com/Nganga-AI/tumkwe-invest.git
+"""
+
 from langchain_ollama import ChatOllama  # type: ignore
+from tumkwe_invest.news import TOOL_DESCRIPTION as NEWS_TOOL_DESCRIPTION
+from tumkwe_invest.news import tools as news_tools
+from tumkwe_invest.sector import TOOL_DESCRIPTION as SECTOR_TOOL_DESCRIPTION
+from tumkwe_invest.sector import tools as sector_tools
+from tumkwe_invest.ticker import TOOL_DESCRIPTION as TICKER_TOOL_DESCRIPTION
+from tumkwe_invest.ticker import tools as ticker_tools
 
 from langgraph_agentflow.single_step import build_agent_graph, stream_agent_responses
 
 # Initialize LLM
 llm = ChatOllama(model="llama3.3", temperature=0.7)
 
-# Define your tools (simple examples)
-news_tools = [
-    Tool(
-        name="search_news",
-        description="Search for recent news about a company or topic",
-        func=lambda x: f"News results for {x}: Latest financial news...",
-    )
-]
-
-sector_tools = [
-    Tool(
-        name="sector_analysis",
-        description="Get analysis for a market sector",
-        func=lambda x: f"Sector analysis for {x}: The sector is performing well...",
-    )
-]
-
-ticker_tools = [
-    Tool(
-        name="get_stock_price",
-        description="Get the current stock price for a ticker symbol",
-        func=lambda x: f"Stock price for {x}: $150.42, up 1.2% today",
-    )
-]
-
 # Create the agent configuration
 agent_config = [
     {
         "name": "news",
         "tools": news_tools,
-        "description": "Retrieves and analyzes news about companies and markets",
+        "description": NEWS_TOOL_DESCRIPTION,
     },
     {
         "name": "sector",
         "tools": sector_tools,
-        "description": "Analyzes sector performance and trends",
+        "description": SECTOR_TOOL_DESCRIPTION,
     },
     {
         "name": "ticker",
         "tools": ticker_tools,
-        "description": "Retrieves and analyzes stock ticker information",
+        "description": TICKER_TOOL_DESCRIPTION,
     },
     {
         "name": "general",
