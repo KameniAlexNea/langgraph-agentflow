@@ -34,13 +34,23 @@ llm = ChatOllama(model="llama3")
 agent_config = [
     {
         "name": "news",
-        "tools": [Tool(name="search_news", func=lambda x: f"News for {x}", description="Search news")],
-        "description": "Retrieves and analyzes news about companies and markets"
+        "tools": news_tools,
+        "description": NEWS_TOOL_DESCRIPTION,
+    },
+    {
+        "name": "sector",
+        "tools": sector_tools,
+        "description": SECTOR_TOOL_DESCRIPTION,
+    },
+    {
+        "name": "ticker",
+        "tools": ticker_tools,
+        "description": TICKER_TOOL_DESCRIPTION,
     },
     {
         "name": "general",
-        "description": "Handles general information requests"
-    }
+        "description": "Handles general information and queries not specific to other domains",
+    },
 ]
 
 # Create the agent
@@ -49,6 +59,8 @@ graph, config, stream_fn, interactive_loop = create_hierarchical_agent(llm, agen
 # Use the agent
 stream_fn("What's the latest news about Tesla?")
 ```
+
+![Single Step Agent Architecture](examples/single.png)
 
 ### Multi-Step Agent
 
@@ -68,13 +80,23 @@ agent = create_multi_step_agent(
     agent_tools=[
         {
             "name": "news",
-            "tools": [Tool(name="search_news", func=lambda x: f"News for {x}", description="Search news")],
-            "description": "Retrieves and analyzes news about companies and markets"
+            "tools": news_tools,
+            "description": NEWS_TOOL_DESCRIPTION,
+        },
+        {
+            "name": "sector",
+            "tools": sector_tools,
+            "description": SECTOR_TOOL_DESCRIPTION,
+        },
+        {
+            "name": "ticker",
+            "tools": ticker_tools,
+            "description": TICKER_TOOL_DESCRIPTION,
         },
         {
             "name": "general",
-            "description": "Handles general information requests"
-        }
+            "description": "Handles general information and queries not specific to other domains",
+        },
     ]
 )
 
@@ -84,6 +106,8 @@ response = invoke_multi_step_agent(
     "Compare the recent performance of Tesla and the overall EV market based on news"
 )
 ```
+
+![Single Step Agent Architecture](examples/multi.png)
 
 ## Architecture
 

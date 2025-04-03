@@ -96,7 +96,9 @@ class TestIntegration(unittest.TestCase):
         mock_invoke.return_value = mock_response
 
         mock_graph = MagicMock()
-        mock_graph.invoke.side_effect = mock_invoke # lambda *args, **kwargs: print("Mocked invoke call")
+        mock_graph.invoke.side_effect = (
+            mock_invoke  # lambda *args, **kwargs: print("Mocked invoke call")
+        )
         mock_state_graph.return_value.compile.return_value = mock_graph
 
         agent = create_multi_step_agent(llm=self.llm, agent_tools=self.agent_configs)
@@ -104,6 +106,6 @@ class TestIntegration(unittest.TestCase):
         result = invoke_multi_step_agent(agent, "Test query")
 
         print("mock_invoke call count:", mock_invoke.call_count)
-        
+
         self.assertEqual(result, mock_response)
         mock_invoke.assert_called_once()
