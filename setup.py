@@ -37,9 +37,11 @@ setup(
             "pygraphviz",
             "jupyter",
             "pickleshare",
-            "git+ssh://git@github.com/Nganga-AI/tumkwe-invest.git",
         ],
     },
+    dependency_links=[
+        "git+https://github.com/Nganga-AI/tumkwe-invest.git#egg=tumkwe-invest"
+    ],
     python_requires=">=3.8",
     include_package_data=True,
     classifiers=[
