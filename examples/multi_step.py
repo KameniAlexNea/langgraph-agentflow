@@ -7,7 +7,7 @@ from langgraph_agentflow.multi_step import (
 )
 
 # Initialize LLM
-llm = ChatOllama(model="llama3", temperature=0.7)
+llm = ChatOllama(model="llama3.3", temperature=0.7)
 
 # Define your tools (simple examples)
 news_tools = [

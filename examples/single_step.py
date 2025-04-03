@@ -4,7 +4,7 @@ from langchain_ollama import ChatOllama  # type: ignore
 from langgraph_agentflow.single_step import build_agent_graph, stream_agent_responses
 
 # Initialize LLM
-llm = ChatOllama(model="llama3", temperature=0.7)
+llm = ChatOllama(model="llama3.3", temperature=0.7)
 
 # Define your tools (simple examples)
 news_tools = [

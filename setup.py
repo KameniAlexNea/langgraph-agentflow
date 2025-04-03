@@ -16,7 +16,7 @@ def read_long_description():
 
 setup(
     name=metadata.get("PACKAGE_NAME", "graphrag_tagger"),
-    version=metadata.get("VERSION", "0.1.1"),  # updated version
+    version=metadata.get("VERSION", "0.0.1"),  # updated version
     description=metadata.get("DESCRIPTION", ""),
     long_description=read_long_description(),
     long_description_content_type="text/markdown",
