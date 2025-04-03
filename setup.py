@@ -15,7 +15,7 @@ def read_long_description():
         return f.read()
 
 setup(
-    name=metadata.get("PACKAGE_NAME", "graphrag_tagger"),
+    name=metadata.get("PACKAGE_NAME", "langgraph-agentflow"),
     version=metadata.get("VERSION", "0.0.1"),  # updated version
     description=metadata.get("DESCRIPTION", ""),
     long_description=read_long_description(),
@@ -34,6 +34,10 @@ setup(
         ],
         "examples": [
             "langchain-ollama",
+            "pygraphviz",
+            "jupyter",
+            "pickleshare",
+            "git+ssh://git@github.com/Nganga-AI/tumkwe-invest.git",
         ],
     },
     python_requires=">=3.8",
