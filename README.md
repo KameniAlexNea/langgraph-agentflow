@@ -50,9 +50,12 @@ graph, config, stream_fn, interactive_loop = create_hierarchical_agent(llm, agen
 stream_fn("What's the latest news about Tesla?")
 ```
 
+![Single Step Agent Architecture](examples/single.png)
+
 ### Multi-Step Agent
 
 Create a multi-step agent that breaks complex tasks into simpler subtasks:
+
 
 ```python
 from langchain_core.tools import Tool
@@ -84,6 +87,8 @@ response = invoke_multi_step_agent(
     "Compare the recent performance of Tesla and the overall EV market based on news"
 )
 ```
+
+![Single Step Agent Architecture](examples/multi.png)
 
 ## Architecture
 
