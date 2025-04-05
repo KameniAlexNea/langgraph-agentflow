@@ -13,6 +13,7 @@ def create_hierarchical_agent(
     agent_configs: Optional[List[Dict[str, Any]]] = None,
     router_prompt: str = DEFAULT_ROUTER_PROMPT,
     visualize: bool = True,
+    tool_checker_enabled: bool = True,
 ) -> Tuple[CompiledStateGraph, Dict]:
     """
     Create a complete hierarchical agent system with one function call.
@@ -22,6 +23,7 @@ def create_hierarchical_agent(
         agent_configs: List of configuration dictionaries for each specialized agent
         router_prompt: Custom router prompt
         visualize: Whether to visualize the graph
+        tool_checker_enabled: Whether to enable tool execution validation
 
     Returns:
         Tuple of (graph, config)
@@ -37,7 +39,7 @@ def create_hierarchical_agent(
         ]
 
     # Build the graph
-    graph, _ = build_agent_graph(llm, agent_configs, router_prompt)
+    graph, _ = build_agent_graph(llm, agent_configs, router_prompt, tool_checker_enabled)
 
     # Visualize if requested
     if visualize:

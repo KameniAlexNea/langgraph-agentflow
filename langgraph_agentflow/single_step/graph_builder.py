@@ -13,12 +13,14 @@ from langgraph_agentflow.single_step.agent_types import (
 )
 from langgraph_agentflow.single_step.router import create_router_agent
 from langgraph_agentflow.single_step.specialized_agent import create_specialized_agent
+from langgraph_agentflow.single_step.tool_checker import create_tool_checker, default_retry_decision
 
 
 def build_agent_graph(
     llm: BaseChatModel,
     agent_configs: List[Dict[str, Any]],
     router_prompt: str = DEFAULT_ROUTER_PROMPT,
+    tool_checker_enabled: bool = True,
 ) -> Tuple[CompiledStateGraph, MemorySaver]:
     """
     Build a complete agent graph with router and specialized agents.
@@ -28,6 +30,7 @@ def build_agent_graph(
         agent_configs: List of agent configuration dictionaries. Each must contain 'name' and 'description',
                       and may optionally contain 'tools'.
         router_prompt: Custom router prompt template
+        tool_checker_enabled: Whether to enable tool execution validation
 
     Returns:
         Tuple of (compiled_graph, memory)
@@ -46,6 +49,7 @@ def build_agent_graph(
     # Create specialized agents and tool nodes
     specialized_agents = {}
     tool_nodes = {}
+    tool_checker_nodes = {}
 
     for config in agent_configs:
         name = config["name"]
@@ -53,6 +57,8 @@ def build_agent_graph(
         specialized_agents[name] = create_specialized_agent(name, llm, tools)
         if tools:
             tool_nodes[f"{name}_tools"] = ToolNode(tools)
+            if tool_checker_enabled:
+                tool_checker_nodes[f"{name}_tool_checker"] = create_tool_checker(default_retry_decision)
 
     # Build the graph
     workflow = StateGraph(MessagesState)
@@ -67,6 +73,11 @@ def build_agent_graph(
     # Add tool nodes
     for name, tool_node in tool_nodes.items():
         workflow.add_node(name, tool_node)
+    
+    # Add tool checker nodes if enabled
+    if tool_checker_enabled:
+        for name, checker_node in tool_checker_nodes.items():
+            workflow.add_node(name, checker_node)
 
     # Define entry point
     workflow.add_edge(START, "router")
@@ -102,14 +113,37 @@ def build_agent_graph(
         logger.warning("--- No Tool Call Detected by Agent ---")
         return END
 
-    # Connect agents to their tools
+    # Tool checker decision logic
+    def tool_checker_decision(state: MessagesState) -> str:
+        if state.get("has_error", False):
+            logger.warning("--- Tool Execution Error Detected ---")
+            # Could implement retry logic here in the future
+            return "back_to_agent"
+        logger.info("--- Tool Execution Successful ---")
+        return "back_to_agent"
+
+    # Connect agents to their tools with tool checker
     for config in agent_configs:
         name = config["name"]
         if f"{name}_tools" in tool_nodes:
+            # Connect agent to tools
             workflow.add_conditional_edges(
                 f"{name}_agent", route_tools, {"call_tools": f"{name}_tools", END: END}
             )
-            workflow.add_edge(f"{name}_tools", f"{name}_agent")
+            
+            if tool_checker_enabled:
+                # Connect tools to tool checker
+                workflow.add_edge(f"{name}_tools", f"{name}_tool_checker")
+                
+                # Connect tool checker back to agent
+                workflow.add_conditional_edges(
+                    f"{name}_tool_checker", 
+                    tool_checker_decision,
+                    {"back_to_agent": f"{name}_agent"}
+                )
+            else:
+                # Direct connection without checker
+                workflow.add_edge(f"{name}_tools", f"{name}_agent")
         else:
             workflow.add_edge(f"{name}_agent", END)
 
