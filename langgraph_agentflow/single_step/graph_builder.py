@@ -58,7 +58,7 @@ def build_agent_graph(
         if tools:
             tool_nodes[f"{name}_tools"] = ToolNode(tools)
             if tool_checker_enabled:
-                tool_checker_nodes[f"{name}_tool_checker"] = create_tool_checker(default_retry_decision)
+                tool_checker_nodes[f"{name}_tool_checker"] = create_tool_checker(llm, default_retry_decision)
 
     # Build the graph
     workflow = StateGraph(MessagesState)
@@ -117,7 +117,9 @@ def build_agent_graph(
     def tool_checker_decision(state: MessagesState) -> str:
         if state.get("has_error", False):
             logger.warning("--- Tool Execution Error Detected ---")
-            # Could implement retry logic here in the future
+            # If we have an LLM-generated response, pass it back to the agent
+            if "llm_response" in state:
+                return "back_to_agent"
             return "back_to_agent"
         logger.info("--- Tool Execution Successful ---")
         return "back_to_agent"

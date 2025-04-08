@@ -10,6 +10,7 @@ class MessagesState(TypedDict):
     has_error: bool = False
     error_message: Optional[str] = None
     should_retry: bool = False
+    llm_response: Optional[str] = None
 
 
 # Default router prompt template
